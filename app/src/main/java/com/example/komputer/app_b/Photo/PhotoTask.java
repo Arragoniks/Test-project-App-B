@@ -6,11 +6,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.komputer.app_b.R;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 
 class PhotoTask extends AsyncTask<String,Void,Bitmap> {
@@ -29,7 +32,6 @@ class PhotoTask extends AsyncTask<String,Void,Bitmap> {
             InputStream in = new java.net.URL(httpTask).openStream();
             myPhoto = BitmapFactory.decodeStream(in);
         }catch (Exception e){}
-
         return myPhoto;
     }
 
@@ -41,6 +43,9 @@ class PhotoTask extends AsyncTask<String,Void,Bitmap> {
             Toast toast =Toast.makeText(context, R.string.incorect_link,Toast.LENGTH_LONG);
             toast.show();
         }
+        else {
+           new DownloadingTask(context).execute(bitmap);
+       }
     }
 
     private boolean hasImage(ImageView view) {
