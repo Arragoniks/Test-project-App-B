@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.komputer.app_b.Photo.PhotoActivity;
+
 public class MainActivity extends AppCompatActivity {
     EditText editText;
     Button buttonShow;
@@ -21,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this,PhotoActivity.class);
                 intent.putExtra("HTTP",editText.getText().toString());
+                editText.setText("");
                 startActivity(intent);
             }
         });
