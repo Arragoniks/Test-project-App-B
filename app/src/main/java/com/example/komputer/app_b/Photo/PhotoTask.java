@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
 import android.widget.ImageView;
 import android.widget.Toast;
 

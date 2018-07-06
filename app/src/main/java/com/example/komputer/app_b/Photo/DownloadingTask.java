@@ -24,8 +24,15 @@ public class DownloadingTask extends AsyncTask<Bitmap,Void,Void> {
 
     @Override
     protected Void doInBackground(Bitmap... bitmaps) {
+        //задержка 15 сек
+        try {
+            Log.e("CHEKING TIME: ","Start "+(new GregorianCalendar().get(Calendar.SECOND)));
+            Thread.sleep(15000);
+        } catch (InterruptedException e) {}
+
         String folderToSafe = Environment.getExternalStorageDirectory().toString()+"/BIGDIG/test/B";
         SavePicture(bitmaps[0],folderToSafe);
+        Log.e("CHEKING TIME: ","Finish "+(new GregorianCalendar().get(Calendar.SECOND)));
         return null;
     }
 
