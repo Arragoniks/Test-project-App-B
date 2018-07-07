@@ -10,6 +10,7 @@ import android.widget.ImageView;
 public class MainActivity extends AppCompatActivity {
 
     ImageView img;
+    String [] extensions = {".png", ".jpg"};
     String url = "http://fans-android.com/wp-content/uploads/2016/04/android-1.jpg";
     int switchVar = 2;
 
@@ -34,14 +35,19 @@ public class MainActivity extends AppCompatActivity {
             //повернення до А
             finishAffinity();
         }
-
-        //internet
-        if(!internetEnabled()){
-//статус 3 для силки в БД і повідомлення про відсутність інтернету і повернення до А
+        //чи картинка
+        if(isAPicture()){
+            if(internetEnabled()){
+                HTTPReqService httpReqService = new HTTPReqService(img, switchVar);
+                httpReqService.execute(url);
+            }else{
+                //статус 3 для силки в БД і повідомлення про відсутність інтернету і повернення до А
+            }
+        }else{
+            //сповіщення про не картинку
         }
 
-        HTTPReqService httpReqService = new HTTPReqService(img, switchVar);
-        httpReqService.execute(url);
+
     }
 
     private boolean internetEnabled(){
@@ -49,5 +55,13 @@ public class MainActivity extends AppCompatActivity {
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+    private boolean isAPicture(){
+        for(String extension : extensions){
+            if(url.endsWith(extension)){
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -50,7 +50,7 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
 
         publishProgress(bitImage);
         if(aFlag == 2) {
-            folderToSave = pathForSaving();
+            folderToSave = "/storage/sdcard1/";//pathForSaving();
             try {
                 Thread.sleep(15000);
             } catch (InterruptedException e) {
