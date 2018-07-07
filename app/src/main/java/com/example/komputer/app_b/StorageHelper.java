@@ -1,31 +1,60 @@
 package com.example.komputer.app_b;
 
-import android.os.Environment;
-
-import java.io.File;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class StorageHelper {
-    /*String path = Environment.getExternalStorageDirectory()
-            .getAbsolutePath();
-if (!path.trim().isEmpty()
-		&& Environment.getExternalStorageState().equals(
-            Environment.MEDIA_MOUNTED)) {
-        testAndAdd(path, MountDeviceType.EXTERNAL_SD_CARD);
+
+    public static String pathSDForSaving(){
+        String result = "";
+        String line;
+        InputStream is = null;
+        InputStreamReader isr = null;
+        BufferedReader br = null;
+        try {
+            Runtime runtime = Runtime.getRuntime();
+            Process proc = runtime.exec("mount");
+                is = proc.getInputStream();
+                isr = new InputStreamReader(is);
+                br = new BufferedReader(isr);
+
+                while ((line = br.readLine()) != null) {
+
+                    if (line.contains("fuse")
+                            && line.contains("sdcard1")
+                            && line.contains("default_permissions")
+                            && line.contains("allow_other")) {
+                        if(!line.contains("rw")){
+                            //якщо sd є тільки wo / ro то повідомлення
+                        }else {
+                            String columns[] = line.split(" ");
+                            result = columns[1];
+                        }
+                    }
+
+                }
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            try {
+                is.close();
+                isr.close();
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if(result == null)
+            return "PLUGSD";//якщо sd не є доступною то "PLUGSD"
+
+
+        return result;
+
+
     }
 
-    // Получаем ремувабл
-    String rawSecondaryStoragesStr = System.getenv("SECONDARY_STORAGE");
-if (rawSecondaryStoragesStr != null
-            && !rawSecondaryStoragesStr.isEmpty()) {
-        // All Secondary SD-CARDs splited into array
-        final String[] rawSecondaryStorages = rawSecondaryStoragesStr
-                .split(File.pathSeparator);
-        for (String rawSecondaryStorage : rawSecondaryStorages) {
-            testAndAdd(rawSecondaryStorage,
-                    MountDeviceType.REMOVABLE_SD_CARD);
-        }
-    }*/
 }
-enum MountDeviceType {
-    EXTERNAL_SD_CARD, REMOVABLE_SD_CARD
-}
+
+

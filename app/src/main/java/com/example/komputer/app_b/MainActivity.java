@@ -1,7 +1,6 @@
 package com.example.komputer.app_b;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -11,7 +10,7 @@ import android.widget.ImageView;
 public class MainActivity extends AppCompatActivity {
 
     ImageView img;
-    String url = "http://www.radionetplus.ru/uploads/posts/2013-05/1369460621_panda-26.jpg";
+    String url = "http://fans-android.com/wp-content/uploads/2016/04/android-1.jpg";
     int switchVar = 2;
 
     @Override
@@ -41,10 +40,6 @@ public class MainActivity extends AppCompatActivity {
 //статус 3 для силки в БД і повідомлення про відсутність інтернету і повернення до А
         }
 
-        //чи наявна sd і запис з читанням на неї + дістати шлях для збереження файлів
-        if(false){
-
-        }
         HTTPReqService httpReqService = new HTTPReqService(img, switchVar);
         httpReqService.execute(url);
     }
