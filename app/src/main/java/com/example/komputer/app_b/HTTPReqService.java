@@ -48,7 +48,7 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
             }else {
                 dbAccessHelper.insertImageData(url, 3);
             }
-            Toast.makeText(context, "Неможливо завантажити картинку", Toast.LENGTH_LONG);
+            Toast.makeText(context, "Unable to get the picture", Toast.LENGTH_LONG);
         }finally {
             try {
                 in.close();
@@ -96,7 +96,7 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
         super.onPostExecute(aVoid);
         if(openHist) {
             dbAccessHelper.deleteImageData(url);
-            Toast.makeText(context, "Текст видалення посилання", Toast.LENGTH_LONG);
+            Toast.makeText(context, "The link was deleted from your history", Toast.LENGTH_LONG);
         }else {
             dbAccessHelper.insertImageData(url, 1);
         }

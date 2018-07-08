@@ -4,15 +4,17 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     ImageView img;
     String [] extensions = {".png", ".jpg"};
-    //String url = "http://fans-android.com/wp-content/uploads/2016/04/android-1.jpg";
     String url;
     int mode;
     boolean openHist = false;
@@ -23,6 +25,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         img = findViewById(R.id.image);
+        TextView textView3 = findViewById(R.id.textView3);
+        final TextView textView4 = findViewById(R.id.textView4);
+        textView3.setVisibility(View.INVISIBLE);
+        textView4.setVisibility(View.INVISIBLE);
 
         this.url = getIntent().getStringExtra("URL");
         this.mode = getIntent().getIntExtra("MODE", 0);
@@ -33,13 +39,22 @@ public class MainActivity extends AppCompatActivity {
                 HTTPReqService httpReqService = new HTTPReqService(img, mode, openHist, this);
                 httpReqService.execute(url);
         }else if(url == null){
-            //сповіщення про самостійне відкриття
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            finishAffinity();
+            img.setVisibility(View.INVISIBLE);
+            textView3.setVisibility(View.VISIBLE);
+            textView4.setVisibility(View.VISIBLE);
+            textView3.setText("App B is not independent and will close in");
+            CountDownTimer countDownTimer = new CountDownTimer(10000, 1000) {
+                @Override
+                public void onTick(long l) {
+                    textView4.setText((int)(l/1000) + "sec");
+                }
+
+                @Override
+                public void onFinish() {
+                    finishAffinity();
+                }
+            };
+            countDownTimer.start();
         }else if(isAPicture()){
             if(openHist)
                 dbAccessHelper.updateStatus(url, 2);
