@@ -37,8 +37,7 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
             in = new java.net.URL(url).openStream();
             bitImage = BitmapFactory.decodeStream(in);
         } catch (Exception e) {
-            Log.e("Error", e.getMessage());
-            e.printStackTrace();
+            //повідомлення про неможливість скачування
         }finally {
             try {
                 in.close();
@@ -56,6 +55,7 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            //звертання до БД
             OutputStream fOut = null;
             Time time = new Time();
             time.setToNow();
@@ -81,6 +81,13 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
         }
         Log.e("onPostExecute", "message");
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+        //звертання до БД
+        //повідомлення
     }
 
     @Override
