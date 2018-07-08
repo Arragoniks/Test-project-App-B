@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.text.format.Time;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -48,7 +47,7 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
             }else {
                 dbAccessHelper.insertImageData(url, 3);
             }
-            Toast.makeText(context, "Unable to get the picture", Toast.LENGTH_LONG);
+            //Toast.makeText(context, "Unable to get the picture", Toast.LENGTH_LONG);
         }finally {
             try {
                 in.close();
