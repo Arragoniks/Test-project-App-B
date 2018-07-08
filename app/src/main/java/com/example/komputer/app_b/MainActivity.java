@@ -6,14 +6,16 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     ImageView img;
     String [] extensions = {".png", ".jpg"};
-    String url = "http://fans-android.com/wp-content/uploads/2016/04/android-1.jpg";
-    //String url = "";
-    int mode = 1;
+    //String url = "http://fans-android.com/wp-content/uploads/2016/04/android-1.jpg";
+    String url;
+    int mode;
+    boolean openHist = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,11 +24,13 @@ public class MainActivity extends AppCompatActivity {
 
         img = findViewById(R.id.image);
 
-        //this.url = getIntent().getStringExtra("URL");
-        //this.mode = getIntent().getIntExtra("MODE", 0);
+        this.url = getIntent().getStringExtra("URL");
+        this.mode = getIntent().getIntExtra("MODE", 0);
+        this.openHist = getIntent().getBooleanExtra("OPENHIST", false);
+        DBAccessHelper dbAccessHelper = new DBAccessHelper(this);
 
         if(url != null && isAPicture() && internetEnabled()){
-                HTTPReqService httpReqService = new HTTPReqService(img, mode);
+                HTTPReqService httpReqService = new HTTPReqService(img, mode, openHist, this);
                 httpReqService.execute(url);
         }else if(url == null){
             //сповіщення про самостійне відкриття
@@ -37,9 +41,19 @@ public class MainActivity extends AppCompatActivity {
             }
             finishAffinity();
         }else if(isAPicture()){
-            //сповіщення про не картинку
+            if(openHist)
+                dbAccessHelper.updateStatus(url, 2);
+            else
+                dbAccessHelper.insertImageData(url, 2);
+            Toast.makeText(this, "It is not a picture", Toast.LENGTH_LONG);
+            finishAffinity();
         }else{
-            //статус 3 для силки в БД і повідомлення про відсутність інтернету і повернення до А
+            if(openHist)
+                dbAccessHelper.updateStatus(url, 3);
+            else
+                dbAccessHelper.insertImageData(url, 3);
+            Toast.makeText(this, "Internet is disabled", Toast.LENGTH_LONG);
+            finishAffinity();
         }
 
 

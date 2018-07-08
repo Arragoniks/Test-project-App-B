@@ -1,11 +1,13 @@
 package com.example.komputer.app_b;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.text.format.Time;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,17 +21,21 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
     int aFlag;
     private String folderToSave;
     private String url;
+    boolean openHist;
+    Context context;
+    DBAccessHelper dbAccessHelper;
 
-    public HTTPReqService(ImageView image, int aFlag){
+    public HTTPReqService(ImageView image, int aFlag, boolean openHist, Context context){
         this.image = image;
         this.aFlag = aFlag;
-        //folderToSave = StorageHelper.pathSDForSaving(); for SD
+        this.openHist = openHist;
+        this.context = context;
+        dbAccessHelper = new DBAccessHelper(context);
     }
 
 
     @Override
     protected Void doInBackground(String... strings) {
-        Log.e("onPreExecute", "message");
         this.url = strings[0];
         InputStream in = null;
         Bitmap bitImage = null;
@@ -37,7 +43,12 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
             in = new java.net.URL(url).openStream();
             bitImage = BitmapFactory.decodeStream(in);
         } catch (Exception e) {
-            //повідомлення про неможливість скачування
+            if(openHist) {
+                dbAccessHelper.updateStatus(url, 3);
+            }else {
+                dbAccessHelper.insertImageData(url, 3);
+            }
+            Toast.makeText(context, "Неможливо завантажити картинку", Toast.LENGTH_LONG);
         }finally {
             try {
                 in.close();
@@ -45,17 +56,15 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
                 e.printStackTrace();
             }
         }
-        Log.e("Publishing", "message");
 
         publishProgress(bitImage);
         if(aFlag == 2) {
-            folderToSave = "/storage/sdcard1/";//pathForSaving();
+            folderToSave = pathForSaving();
             try {
                 Thread.sleep(15000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            //звертання до БД
             OutputStream fOut = null;
             Time time = new Time();
             time.setToNow();
@@ -79,15 +88,18 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
                 }
             }
         }
-        Log.e("onPostExecute", "message");
         return null;
     }
 
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        //звертання до БД
-        //повідомлення
+        if(openHist) {
+            dbAccessHelper.deleteImageData(url);
+            Toast.makeText(context, "Текст видалення посилання", Toast.LENGTH_LONG);
+        }else {
+            dbAccessHelper.insertImageData(url, 1);
+        }
     }
 
     @Override
