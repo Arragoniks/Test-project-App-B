@@ -3,4 +3,7 @@
     <string name="button">SHOW</string>
     <string name="incorect_link">INCORECT LINK</string>
     <string name="error_link">ERROR</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="attention">Это приложения не является самостоятельным и отключится через 10 секунд...</string>
 </resources>
