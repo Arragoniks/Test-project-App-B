@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
                 HTTPReqService httpReqService = new HTTPReqService(img, mode, openHist, this);
                 httpReqService.execute(url);
         }else if(url == null){
-            //сповіщення про самостійне відкриття
+            android.widget.Toast.makeText(this, "This application isn't independent", Toast.LENGTH_SHORT).show();
             try {
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
