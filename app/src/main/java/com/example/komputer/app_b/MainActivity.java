@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                     if(openHist)
                         dbAccessHelper.updateStatus(url, 2);
                     else
-                        dbAccessHelper.insertImageData(url, 2);
+                        dbAccessHelper.deleteImageData(url);
                     Toast.makeText(this, "It is not a picture", Toast.LENGTH_LONG).show();
                     finishAffinity();
                 }

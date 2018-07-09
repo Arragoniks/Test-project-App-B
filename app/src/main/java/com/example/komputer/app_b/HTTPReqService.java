@@ -66,7 +66,7 @@ public class HTTPReqService extends AsyncTask<URL, Bitmap, Void> {
                     dbAccessHelper.updateStatus(url.toString(), 2);
                     srcEnabled = false;
                 } else {
-                    dbAccessHelper.insertImageData(url.toString(), 2);
+                    dbAccessHelper.deleteImageData(url.toString());
                 }
             }
 
@@ -130,7 +130,15 @@ public class HTTPReqService extends AsyncTask<URL, Bitmap, Void> {
     @Override
     protected void onProgressUpdate(Bitmap... values) {
         super.onProgressUpdate(values);
-        image.setImageBitmap(values[0]);
+        try {
+            image.setImageBitmap(values[0]);
+        } catch (Exception e) {
+            if (openHist) {
+                dbAccessHelper.deleteImageData(url.toString());
+            } else {
+                dbAccessHelper.insertImageData(url.toString(), 2);
+            }
+        }
 
     }
 
