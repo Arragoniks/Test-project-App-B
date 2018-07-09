@@ -47,13 +47,8 @@ public class MainActivity extends AppCompatActivity {
         this.mode = getIntent().getIntExtra("MODE", 0);
         this.openHist = getIntent().getBooleanExtra("OPENHIST", false);
         DBAccessHelper dbAccessHelper = new DBAccessHelper(this);
-        boolean isaPic = isAPicture();
-        boolean inetEnable = internetEnabled();
 
-        if(url != null && isaPic && inetEnable){
-                HTTPReqService httpReqService = new HTTPReqService(img, mode, openHist, this);
-                httpReqService.execute(url);
-        }else if(url == null){
+        if(url == null){
             img.setVisibility(View.INVISIBLE);
             textView3.setVisibility(View.VISIBLE);
             textView4.setVisibility(View.VISIBLE);
@@ -73,20 +68,27 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
             countDownTimer.start();
-        }else if(isaPic){
-            if(openHist)
-                dbAccessHelper.updateStatus(url, 2);
-            else
-                dbAccessHelper.insertImageData(url, 2);
-            Toast.makeText(this, "It is not a picture", Toast.LENGTH_LONG).show();
-            finishAffinity();
-        }else if(inetEnable){
-            if(openHist)
-                dbAccessHelper.updateStatus(url, 3);
-            else
-                dbAccessHelper.insertImageData(url, 3);
-            Toast.makeText(this, "Internet is disabled", Toast.LENGTH_LONG).show();
-            finishAffinity();
+        }else{
+            boolean isaPic = isAPicture();
+            boolean inetEnable = internetEnabled();
+            if(isaPic && inetEnable){
+                HTTPReqService httpReqService = new HTTPReqService(img, mode, openHist, this);
+                httpReqService.execute(url);
+            }else if(!isaPic){
+                if(openHist)
+                    dbAccessHelper.updateStatus(url, 2);
+                else
+                    dbAccessHelper.insertImageData(url, 2);
+                Toast.makeText(this, "It is not a picture", Toast.LENGTH_LONG).show();
+                finishAffinity();
+            }else {
+                if (openHist)
+                    dbAccessHelper.updateStatus(url, 3);
+                else
+                    dbAccessHelper.insertImageData(url, 3);
+                Toast.makeText(this, "Internet is disabled", Toast.LENGTH_LONG).show();
+                finishAffinity();
+            }
         }
 
 
