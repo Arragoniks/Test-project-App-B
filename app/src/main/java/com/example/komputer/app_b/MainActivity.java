@@ -1,6 +1,7 @@
 package com.example.komputer.app_b;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -23,11 +24,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String[] PERMISSIONS = {Manifest.permission.INTERNET, Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.ACCESS_NETWORK_STATE};
 
-    ImageView img;
-    String [] extensions = {".png", ".jpg"};
-    String url;
-    int mode;
-    boolean openHist = false;
+    private ImageView img;
+    final static private String [] EXTENSIONS = {".png", ".jpg"};
+    private String url;
+    private int mode;
+    private boolean openHist = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,15 +57,18 @@ public class MainActivity extends AppCompatActivity {
             img.setVisibility(View.INVISIBLE);
             textView3.setVisibility(View.VISIBLE);
             textView4.setVisibility(View.VISIBLE);
-            textView3.setText("App B is not independent and will close in");
+            textView3.setText(R.string.string_for_independent_launch);
             CountDownTimer countDownTimer = new CountDownTimer(10000, 1000) {
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onTick(long l) {
                     textView4.setText((int)(l/1000) + "sec");
                 }
 
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onFinish() {
+                    textView4.setText("0sec");
                     finishAffinity();
                 }
             };
@@ -74,20 +78,21 @@ public class MainActivity extends AppCompatActivity {
                 dbAccessHelper.updateStatus(url, 2);
             else
                 dbAccessHelper.insertImageData(url, 2);
-            Toast.makeText(this, "It is not a picture", Toast.LENGTH_LONG);
+            Toast.makeText(this, "It is not a picture", Toast.LENGTH_LONG).show();
             finishAffinity();
         }else if(inetEnable){
             if(openHist)
                 dbAccessHelper.updateStatus(url, 3);
             else
                 dbAccessHelper.insertImageData(url, 3);
-            Toast.makeText(this, "Internet is disabled", Toast.LENGTH_LONG);
+            Toast.makeText(this, "Internet is disabled", Toast.LENGTH_LONG).show();
             finishAffinity();
         }
 
 
     }
 
+    @SuppressWarnings("ConstantConditions")
     private boolean internetEnabled(){
         ConnectivityManager cm =
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -95,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
     private boolean isAPicture(){
-        for(String extension : extensions){
+        for(String extension : EXTENSIONS){
             if(url.endsWith(extension)){
                 return true;
             }
@@ -111,8 +116,6 @@ public class MainActivity extends AppCompatActivity {
         }
         if(!permissions.isEmpty()){
             ActivityCompat.requestPermissions(this, permissions.toArray(new String[permissions.size()]), PERMISSIONS_GET);
-            return;
         }
-        return;
     }
 }
