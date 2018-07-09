@@ -51,7 +51,6 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
             }else {
                 dbAccessHelper.insertImageData(url, 3);
             }
-            //Toast.makeText(context, "Unable to get the picture", Toast.LENGTH_LONG);
         }finally {
             try {
                 in.close();
@@ -99,7 +98,7 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
         if(openHist) {
             dbAccessHelper.deleteImageData(url);
             Toast.makeText(context, "The link was deleted from your history", Toast.LENGTH_LONG).show();
-        }else {
+        }else{
             dbAccessHelper.insertImageData(url, 1);
         }
     }
@@ -107,7 +106,15 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
     @Override
     protected void onProgressUpdate(Bitmap... values) {
         super.onProgressUpdate(values);
-        image.setImageBitmap(values[0]);
+        try {
+            image.setImageBitmap(values[0]);
+        }catch(Exception e){
+            if(openHist)
+                dbAccessHelper.updateStatus(url, 2);
+            else
+                dbAccessHelper.insertImageData(url, 2);
+            Toast.makeText(context, "It is not a picture", Toast.LENGTH_LONG).show();
+        }
 
     }
 
