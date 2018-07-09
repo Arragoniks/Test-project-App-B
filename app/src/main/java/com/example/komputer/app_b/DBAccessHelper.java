@@ -7,8 +7,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.RemoteException;
 
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
+import java.util.Date;
 
 @SuppressWarnings({"ConstantConditions", "WeakerAccess"})
 @SuppressLint("Recycle")
@@ -50,7 +49,7 @@ public class DBAccessHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put("SRC", src);
         contentValues.put("STATUS", status);
-        contentValues.put("TIME", new GregorianCalendar(TimeZone.getDefault()).getTimeInMillis());
+        contentValues.put("TIME", new Date().getTime());
         try {
             contentProviderClient.insert(IMAGES_CONTENT_PROVIDER_URI, contentValues);
         } catch (RemoteException e) {
