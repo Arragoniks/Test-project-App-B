@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">App_B</string>
+    <string name="app_name">App B</string>
+    <string name="string_for_independent_launch">App B is not independent and will close in</string>
 </resources>

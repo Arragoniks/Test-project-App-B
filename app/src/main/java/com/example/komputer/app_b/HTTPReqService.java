@@ -1,5 +1,6 @@
 package com.example.komputer.app_b;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,22 +15,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@SuppressWarnings({"ConstantConditions", "WeakerAccess", "CanBeFinal"})
 public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
 
-    ImageView image;
-    int aFlag;
-    private String folderToSave;
+    @SuppressLint("StaticFieldLeak")
+    private ImageView image;
+    private int aFlag;
+    static final private String FOLDER_TO_SAVE = pathForSaving();
     private String url;
-    boolean openHist;
-    Context context;
-    DBAccessHelper dbAccessHelper;
+    private boolean openHist;
+    private DBAccessHelper dbAccessHelper;
+    private Context context;
 
+    @SuppressWarnings("WeakerAccess")
     public HTTPReqService(ImageView image, int aFlag, boolean openHist, Context context){
         this.image = image;
         this.aFlag = aFlag;
         this.openHist = openHist;
-        this.context = context;
         dbAccessHelper = new DBAccessHelper(context);
+        this.context = context;
     }
 
 
@@ -58,7 +62,6 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
 
         publishProgress(bitImage);
         if(aFlag == 2) {
-            folderToSave = pathForSaving();
             try {
                 Thread.sleep(15000);
             } catch (InterruptedException e) {
@@ -67,7 +70,7 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
             OutputStream fOut = null;
             Time time = new Time();
             time.setToNow();
-            File file = new File(folderToSave, Integer.toString(time.year)
+            File file = new File(FOLDER_TO_SAVE, Integer.toString(time.year)
                     + Integer.toString(time.month)
                     + Integer.toString(time.monthDay)
                     + Integer.toString(time.hour)
@@ -95,7 +98,7 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
         super.onPostExecute(aVoid);
         if(openHist) {
             dbAccessHelper.deleteImageData(url);
-            Toast.makeText(context, "The link was deleted from your history", Toast.LENGTH_LONG);
+            Toast.makeText(context, "The link was deleted from your history", Toast.LENGTH_LONG).show();
         }else {
             dbAccessHelper.insertImageData(url, 1);
         }
@@ -108,7 +111,9 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
 
     }
 
-    private String pathForSaving(){
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @SuppressLint("SdCardPath")
+    static private String pathForSaving(){
         File file = new File("/sdcard/BIGDIG/test/B");
         file.mkdirs();
         return file.getAbsolutePath();
