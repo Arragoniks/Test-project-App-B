@@ -19,6 +19,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_GET = 1;
     private static final String[] PERMISSIONS = {Manifest.permission.INTERNET, Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
             countDownTimer.start();
-        }else if(isAPicture()){
+        }else if(!isAPicture()){
             if(openHist)
                 dbAccessHelper.updateStatus(url, 2);
             else
