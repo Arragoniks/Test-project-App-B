@@ -25,6 +25,7 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
     private String url;
     private boolean openHist;
     private DBAccessHelper dbAccessHelper;
+    @SuppressLint("StaticFieldLeak")
     private Context context;
 
     @SuppressWarnings("WeakerAccess")
