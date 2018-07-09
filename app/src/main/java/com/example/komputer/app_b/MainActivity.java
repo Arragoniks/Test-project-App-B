@@ -16,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +67,11 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onFinish() {
                     textView4.setText("0sec");
-                    finishAffinity();
+                    try {
+                        finishAffinity();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             };
             countDownTimer.start();
@@ -73,13 +79,28 @@ public class MainActivity extends AppCompatActivity {
             boolean isaPic = isAPicture();
             boolean inetEnable = internetEnabled();
             if(isaPic && inetEnable){
+                URL src = null;
+                try {
+                     src = new URL(url);
+                    //noinspection RedundantStringToString,ResultOfMethodCallIgnored
+                    url.toString();
+                } catch (MalformedURLException|NullPointerException e) {
+                    e.printStackTrace();
+                    if(openHist)
+                        dbAccessHelper.updateStatus(url, 2);
+                    else
+                        dbAccessHelper.insertImageData(url, 2);
+                    Toast.makeText(this, "It is not a picture", Toast.LENGTH_LONG).show();
+                    finishAffinity();
+                }
                 HTTPReqService httpReqService = new HTTPReqService(img, mode, openHist, this);
-                httpReqService.execute(url);
+                httpReqService.execute(src);
             }else if(!isaPic){
                 if(openHist)
-                    dbAccessHelper.updateStatus(url, 2);
+                    dbAccessHelper.deleteImageData(url);
                 else
                     dbAccessHelper.insertImageData(url, 2);
+
                 Toast.makeText(this, "It is not a picture", Toast.LENGTH_LONG).show();
                 finishAffinity();
             }else {
