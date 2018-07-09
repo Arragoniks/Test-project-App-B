@@ -14,17 +14,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 
 @SuppressWarnings({"ConstantConditions", "WeakerAccess", "CanBeFinal"})
-public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
+public class HTTPReqService extends AsyncTask<URL, Bitmap, Void> {
 
     @SuppressLint("StaticFieldLeak")
     private ImageView image;
     private int aFlag;
     static final private String FOLDER_TO_SAVE = pathForSaving();
-    private String url;
+    private URL url;
     private boolean openHist;
     private DBAccessHelper dbAccessHelper;
+    @SuppressLint("StaticFieldLeak")
     private Context context;
 
     @SuppressWarnings("WeakerAccess")
@@ -38,18 +40,38 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
 
 
     @Override
-    protected Void doInBackground(String... strings) {
+    protected Void doInBackground(URL... strings) {
         this.url = strings[0];
         InputStream in = null;
         Bitmap bitImage = null;
+
         try {
-            in = new java.net.URL(url).openStream();
-            bitImage = BitmapFactory.decodeStream(in);
-        } catch (Exception e) {
-            if(openHist) {
-                dbAccessHelper.updateStatus(url, 3);
-            }else {
-                dbAccessHelper.insertImageData(url, 3);
+            boolean srcEnabled = openHist;
+            try {
+                in = url.openStream();
+            } catch (Exception e) {
+                if (openHist) {
+                    dbAccessHelper.updateStatus(url.toString(), 3);
+                    srcEnabled = false;
+                } else {
+                    dbAccessHelper.insertImageData(url.toString(), 3);
+                }
+                //Toast.makeText(context, "Unable to get the picture", Toast.LENGTH_LONG);
+            }
+
+            try {
+                bitImage = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                if (openHist) {
+                    dbAccessHelper.updateStatus(url.toString(), 2);
+                    srcEnabled = false;
+                } else {
+                    dbAccessHelper.deleteImageData(url.toString());
+                }
+            }
+
+            if (aFlag == 1 && srcEnabled) {
+                dbAccessHelper.updateStatus(url.toString(), 1);
             }
         }finally {
             try {
@@ -96,10 +118,10 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
         if(openHist) {
-            dbAccessHelper.deleteImageData(url);
+            dbAccessHelper.deleteImageData(url.toString());
             Toast.makeText(context, "The link was deleted from your history", Toast.LENGTH_LONG).show();
         }else{
-            dbAccessHelper.insertImageData(url, 1);
+            dbAccessHelper.insertImageData(url.toString(), 1);
         }
     }
 
@@ -110,9 +132,9 @@ public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
             image.setImageBitmap(values[0]);
         }catch(Exception e){
             if(openHist)
-                dbAccessHelper.updateStatus(url, 2);
+                dbAccessHelper.updateStatus(url.toString(), 2);
             else
-                dbAccessHelper.insertImageData(url, 2);
+                dbAccessHelper.insertImageData(url.toString(), 2);
             Toast.makeText(context, "It is not a picture", Toast.LENGTH_LONG).show();
         }
 
