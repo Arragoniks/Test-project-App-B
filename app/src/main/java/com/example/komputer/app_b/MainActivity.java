@@ -30,8 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView img;
     final static private String [] EXTENSIONS = {".png", ".jpg"};
     private String url;
-    private int mode;
-    private boolean openHist = false;
+    private int status;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +46,9 @@ public class MainActivity extends AppCompatActivity {
         textView4.setVisibility(View.INVISIBLE);
 
         this.url = getIntent().getStringExtra("URL");
-        this.mode = getIntent().getIntExtra("MODE", 0);
-        this.openHist = getIntent().getBooleanExtra("OPENHIST", false);
+        this.status = getIntent().getIntExtra("STATUS", 0);
         DBAccessHelper dbAccessHelper = new DBAccessHelper(this);
+
 
         if(url == null){
             img.setVisibility(View.INVISIBLE);
@@ -76,40 +75,17 @@ public class MainActivity extends AppCompatActivity {
             };
             countDownTimer.start();
         }else{
-            boolean isaPic = isAPicture();
-            boolean inetEnable = internetEnabled();
-            if(isaPic && inetEnable){
-                URL src = null;
-                try {
-                     src = new URL(url);
-                    //noinspection RedundantStringToString,ResultOfMethodCallIgnored
-                    url.toString();
-                } catch (MalformedURLException|NullPointerException e) {
-                    e.printStackTrace();
-                    if(openHist)
-                        dbAccessHelper.updateStatus(url, 2);
-                    else
-                        dbAccessHelper.deleteImageData(url);
-                    Toast.makeText(this, "It is not a picture", Toast.LENGTH_LONG).show();
-                    finishAffinity();
-                }
-                HTTPReqService httpReqService = new HTTPReqService(img, mode, openHist, this);
-                httpReqService.execute(src);
-            }else if(!isaPic){
-                if(openHist)
-                    dbAccessHelper.deleteImageData(url);
-                else
-                    dbAccessHelper.insertImageData(url, 2);
-
-                Toast.makeText(this, "It is not a picture", Toast.LENGTH_LONG).show();
-                finishAffinity();
+            if (!url.startsWith("http://") && !url.startsWith("https://"))
+                url = "http://" + url;
+            if(internetEnabled()){
+                HTTPReqService httpReqService = new HTTPReqService(img, status, this);
+                httpReqService.execute(url);
             }else {
-                if (openHist)
-                    dbAccessHelper.updateStatus(url, 3);
-                else
+                if (status == 4)
                     dbAccessHelper.insertImageData(url, 3);
+                else
+                    dbAccessHelper.updateStatus(url, 3);
                 Toast.makeText(this, "Internet is disabled", Toast.LENGTH_LONG).show();
-                finishAffinity();
             }
         }
 
@@ -122,14 +98,6 @@ public class MainActivity extends AppCompatActivity {
                 (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnectedOrConnecting();
-    }
-    private boolean isAPicture(){
-        for(String extension : EXTENSIONS){
-            if(url.endsWith(extension)){
-                return true;
-            }
-        }
-        return false;
     }
     private void checkPermissions() {
         List<String> permissions = new ArrayList<>();

@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ImageReader;
 import android.os.AsyncTask;
 import android.text.format.Time;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -17,72 +19,55 @@ import java.io.OutputStream;
 import java.net.URL;
 
 @SuppressWarnings({"ConstantConditions", "WeakerAccess", "CanBeFinal"})
-public class HTTPReqService extends AsyncTask<URL, Bitmap, Void> {
+public class HTTPReqService extends AsyncTask<String, Bitmap, Void> {
 
     @SuppressLint("StaticFieldLeak")
     private ImageView image;
-    private int aFlag;
     static final private String FOLDER_TO_SAVE = pathForSaving();
-    private URL url;
-    private boolean openHist;
+    private String url;
+    private int status;
     private DBAccessHelper dbAccessHelper;
+    private boolean isAPic = false;
     @SuppressLint("StaticFieldLeak")
     private Context context;
 
     @SuppressWarnings("WeakerAccess")
-    public HTTPReqService(ImageView image, int aFlag, boolean openHist, Context context){
+    public HTTPReqService(ImageView image, int status, Context context){
         this.image = image;
-        this.aFlag = aFlag;
-        this.openHist = openHist;
+        this.status = status;
         dbAccessHelper = new DBAccessHelper(context);
         this.context = context;
     }
 
 
     @Override
-    protected Void doInBackground(URL... strings) {
+    protected Void doInBackground(String... strings) {
         this.url = strings[0];
         InputStream in = null;
         Bitmap bitImage = null;
 
-        try {
-            boolean srcEnabled = openHist;
             try {
-                in = url.openStream();
-            } catch (Exception e) {
-                if (openHist) {
-                    dbAccessHelper.updateStatus(url.toString(), 3);
-                    srcEnabled = false;
-                } else {
-                    dbAccessHelper.insertImageData(url.toString(), 3);
-                }
-                //Toast.makeText(context, "Unable to get the picture", Toast.LENGTH_LONG);
-            }
-
-            try {
+                in = new URL(url).openStream();
                 bitImage = BitmapFactory.decodeStream(in);
             } catch (Exception e) {
-                if (openHist) {
-                    dbAccessHelper.updateStatus(url.toString(), 2);
-                    srcEnabled = false;
-                } else {
-                    dbAccessHelper.deleteImageData(url.toString());
-                }
+                /*if (openHist) {
+                    dbAccessHelper.updateStatus(url, 2);
+                }else {
+                    dbAccessHelper.insertImageData(url, 2);
+                }*/
             }
-
-            if (aFlag == 1 && srcEnabled) {
-                dbAccessHelper.updateStatus(url.toString(), 1);
-            }
-        }finally {
+        finally {
             try {
+                if(in != null)
                 in.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+        isAPic = bitImage != null;
 
         publishProgress(bitImage);
-        if(aFlag == 2) {
+        if(status == 1 && isAPic) {
             try {
                 Thread.sleep(15000);
             } catch (InterruptedException e) {
@@ -117,27 +102,30 @@ public class HTTPReqService extends AsyncTask<URL, Bitmap, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        if(openHist) {
-            dbAccessHelper.deleteImageData(url.toString());
-            Toast.makeText(context, "The link was deleted from your history", Toast.LENGTH_LONG).show();
-        }else{
-            dbAccessHelper.insertImageData(url.toString(), 1);
+        if(isAPic){
+            if (status == 1) {
+                dbAccessHelper.deleteImageData(url);
+                Toast.makeText(context, "The link was deleted from your history", Toast.LENGTH_LONG).show();
+            }else if(status == 2 || status == 3){
+                dbAccessHelper.updateStatus(url, 1);
+            }else if(status == 4)
+                dbAccessHelper.insertImageData(url, 1);
+        }else {
+            if(status == 1 || status == 3){
+                dbAccessHelper.updateStatus(url, 2);
+            }else if(status == 4){
+                dbAccessHelper.insertImageData(url, 2);
+            }
+            Toast.makeText(context, "It is not a picture", Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     protected void onProgressUpdate(Bitmap... values) {
         super.onProgressUpdate(values);
-        try {
+        if(isAPic){
             image.setImageBitmap(values[0]);
-        }catch(Exception e){
-            if(openHist)
-                dbAccessHelper.updateStatus(url.toString(), 2);
-            else
-                dbAccessHelper.insertImageData(url.toString(), 2);
-            Toast.makeText(context, "It is not a picture", Toast.LENGTH_LONG).show();
         }
-
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
